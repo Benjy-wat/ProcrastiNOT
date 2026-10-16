@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProcrastiNOT | Student space</title>
-    <link rel="icon" href="assets/Procrastinot-transparent.png">
+    <link rel="icon" href="assets/ProcrastiNOT-transparent.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="intro-screen" id="introScreen">
         <section class="splash" aria-labelledby="welcomeTitle">
-            <span class="demo-pill"><span></span> INTERACTIVE PREVIEW</span>
+            <span class="intro-pill"><span></span> YOUR PERSONAL STUDY SPACE</span>
 
             <div class="splash-mark">
                 <img class="splash-logo" src="assets/ProcrastiNOT-transparent.png" alt="ProcrastiNOT logo" tabindex="0">
@@ -19,23 +19,32 @@
             <h1 id="welcomeTitle">A little more focus.<br><span>A lot more you.</span></h1>
 
             <form id="loginForm" class="login-form">
-                <label class="login-field" for="loginUsername">
-                    <span>Your display name</span>
-                    <input id="loginUsername" type="text" autocomplete="given-name" maxlength="32" required>
+                <label class="login-field" id="displayNameField" for="loginDisplayName">
+                    <span>Your name</span>
+                    <input id="loginDisplayName" type="text" autocomplete="name" maxlength="32" required>
                 </label>
-                <button id="enterBtn" class="primary-btn" type="submit">Explore the demo <span aria-hidden="true">→</span></button>
+                <label class="login-field" for="loginEmail">
+                    <span>Email address</span>
+                    <input id="loginEmail" type="email" autocomplete="email" required>
+                </label>
+                <label class="login-field" for="loginPassword">
+                    <span>Password</span>
+                    <input id="loginPassword" type="password" autocomplete="new-password" minlength="8" required>
+                </label>
+                <button id="enterBtn" class="primary-btn" type="submit">Create account <span aria-hidden="true">→</span></button>
             </form>
-            <p class="demo-note">Demo only — no Genyo sign-in or password is needed.</p>
+            <p id="authMessage" class="auth-note" role="status" aria-live="polite">Create an account to save your focus and study preferences.</p>
+            <button id="authModeBtn" class="auth-mode-btn" type="button">Already have an account? Sign in</button>
         </section>
 
         <p class="welcome-footnote">A calmer way to get started</p>
     </div>
 
-    <div class="app-shell">
+    <div class="app-shell" id="appShell" inert aria-hidden="true">
         <header class="site-header">
             <nav class="navbar" aria-label="Main navigation">
                 <a class="brand" href="#home" aria-label="Student home">
-                    <img class="school-logo" src="assets/Procrastinot-transparent.png" alt="" aria-hidden="true">
+                    <img class="school-logo" src="assets/ProcrastiNOT-transparent.png" alt="" aria-hidden="true">
                 </a>
                 <div class="nav-links">
                     <a class="nav-link active" href="#home">My space</a>
@@ -44,7 +53,7 @@
                 <div class="nav-user-wrap">
                     <span class="avatar" id="userInitials" aria-hidden="true">S</span>
                     <span class="nav-user" id="navUsernameDisplay">Student</span>
-                    <button id="logoutBtn" class="logout-btn" type="button">Exit demo</button>
+                    <button id="logoutBtn" class="logout-btn" type="button">Sign out</button>
                 </div>
                 <button id="menuBtn" class="menu-btn" type="button" aria-label="Open navigation menu" aria-expanded="false">
                     <span></span>
@@ -177,7 +186,7 @@
                                 <option value="Deep focus">Deep focus</option>
                             </select>
                         </div>
-                        <p class="storage-note"><span aria-hidden="true">ⓘ</span> Preview preferences are saved in this browser only.</p>
+                        <p class="storage-note"><span aria-hidden="true">ⓘ</span> Your work and preferences are saved to your account.</p>
                     </section>
                 </div>
 
@@ -208,10 +217,12 @@
                     </article>
                 </aside>
             </section>
-            <footer class="dashboard-footer">Student space <span>·</span> Prototype preview</footer>
+            <footer class="dashboard-footer">Student space <span>·</span> Your work, saved to your account</footer>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

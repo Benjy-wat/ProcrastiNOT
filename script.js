@@ -1,6 +1,13 @@
 const introScreen = document.getElementById('introScreen');
+const appShell = document.getElementById('appShell');
 const loginForm = document.getElementById('loginForm');
-const loginUsername = document.getElementById('loginUsername');
+const loginDisplayName = document.getElementById('loginDisplayName');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const displayNameField = document.getElementById('displayNameField');
+const enterBtn = document.getElementById('enterBtn');
+const authModeBtn = document.getElementById('authModeBtn');
+const authMessage = document.getElementById('authMessage');
 const logoutBtn = document.getElementById('logoutBtn');
 const menuBtn = document.getElementById('menuBtn');
 const sideMenu = document.getElementById('sideMenu');
@@ -138,11 +145,13 @@ if (splashMark && splashLogo) {
     splashLogo.addEventListener('blur', resetLogoTouch);
 }
 
-const SESSION_KEY = 'thsCDCPreviewSession';
-const TASK_KEY = 'thsCDCPreviewTask';
-const SUBJECT_KEY = 'thsCDCPreviewSubject';
-const PACE_KEY = 'thsCDCPreviewPace';
-const REMINDER_KEY = 'thsCDCPreviewReminder';
+const REMINDER_KEY = 'procrastiNotReminder';
+const supabaseConfig = window.SUPABASE_CONFIG;
+const supabaseClient = window.supabase && supabaseConfig && supabaseConfig.url && supabaseConfig.anonKey
+    ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey)
+    : null;
+let currentUser = null;
+let isSignUpMode = true;
 const REMINDERS = [
     {
         quote: 'Well done is better than well said.',
@@ -160,7 +169,6 @@ const REMINDERS = [
         about: 'English Romantic poet'
     }
 ];
-localStorage.removeItem('startBeforeLaterUsers');
 
 function getTimeGreeting() {
     const hour = new Date().getHours();
@@ -176,16 +184,12 @@ function getTimeGreeting() {
     return 'Good evening';
 }
 
-function getPreferenceKey(key, username) {
-    return `${key}:${username.trim().toLowerCase()}`;
+function getReminderKey(email) {
+    return `${REMINDER_KEY}:${email.trim().toLowerCase()}`;
 }
 
-function getReminderKey(username) {
-    return getPreferenceKey(REMINDER_KEY, username);
-}
-
-function advanceReminder(username) {
-    const reminderKey = getReminderKey(username);
+function advanceReminder(email) {
+    const reminderKey = getReminderKey(email);
     const previousIndex = Number.parseInt(localStorage.getItem(reminderKey) || '-1', 10);
     const nextIndex = (Number.isInteger(previousIndex) ? previousIndex + 1 : 0) % REMINDERS.length;
     localStorage.setItem(reminderKey, String(nextIndex));
@@ -221,8 +225,8 @@ function syncPreferenceDisplays() {
     }
 }
 
-function syncDashboard(username) {
-    const firstName = username || 'Student';
+function syncDashboard(profile) {
+    const firstName = profile.display_name || 'Student';
 
     if (usernameDisplay) {
         usernameDisplay.textContent = firstName;
@@ -248,65 +252,148 @@ function syncDashboard(username) {
         }).format(new Date());
     }
 
-    const subject = localStorage.getItem(getPreferenceKey(SUBJECT_KEY, firstName));
-    const pace = localStorage.getItem(getPreferenceKey(PACE_KEY, firstName));
-    const task = localStorage.getItem(getPreferenceKey(TASK_KEY, firstName));
-
-    if (subjectSelect && subject) {
-        subjectSelect.value = subject;
+    if (subjectSelect && profile.favorite_subject) {
+        subjectSelect.value = profile.favorite_subject;
     }
 
-    if (paceSelect && pace) {
-        paceSelect.value = pace;
+    if (paceSelect && profile.study_pace) {
+        paceSelect.value = profile.study_pace;
     }
 
     if (taskInput) {
-        taskInput.value = task || '';
+        taskInput.value = profile.focus_task || '';
     }
 
     if (taskFeedback) {
-        taskFeedback.textContent = task ? 'Your focus is saved for this browser.' : '';
+        taskFeedback.textContent = profile.focus_task ? 'Your focus is saved to your account.' : '';
     }
 
     syncPreferenceDisplays();
 }
 
-function enterDemo(username) {
-    const displayName = username.trim();
-    if (!displayName) {
-        return;
-    }
-
-    advanceReminder(displayName);
-    localStorage.setItem(SESSION_KEY, displayName);
-    syncDashboard(displayName);
-
-    if (introScreen) {
-        introScreen.classList.add('hidden');
+function setAuthMessage(message, isError = false) {
+    if (authMessage) {
+        authMessage.textContent = message;
+        authMessage.classList.toggle('is-error', isError);
     }
 }
 
-if (loginForm && loginUsername) {
-    loginForm.addEventListener('submit', (event) => {
+function setAuthMode(isSignUp) {
+    isSignUpMode = isSignUp;
+    displayNameField.hidden = !isSignUp;
+    loginDisplayName.required = isSignUp;
+    loginPassword.autocomplete = isSignUp ? 'new-password' : 'current-password';
+    enterBtn.innerHTML = isSignUp
+        ? 'Create account <span aria-hidden="true">→</span>'
+        : 'Sign in <span aria-hidden="true">→</span>';
+    authModeBtn.textContent = isSignUp
+        ? 'Already have an account? Sign in'
+        : 'New here? Create an account';
+    setAuthMessage(isSignUp
+        ? 'Create an account to save your focus and study preferences.'
+        : 'Sign in to continue to your saved work.');
+}
+
+async function loadAccount(user) {
+    currentUser = user;
+    try {
+        const { data: profile, error } = await supabaseClient
+            .from('student_profiles')
+            .select('display_name, focus_task, favorite_subject, study_pace')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+        if (error) {
+            currentUser = null;
+            setAuthMessage(`Could not load your saved work: ${error.message}`, true);
+            return;
+        }
+
+        const accountProfile = profile || {
+            display_name: (user.user_metadata && user.user_metadata.display_name) || user.email.split('@')[0],
+            focus_task: '',
+            favorite_subject: 'Science',
+            study_pace: 'My own pace'
+        };
+
+        if (!profile) {
+            const { error: saveError } = await supabaseClient
+                .from('student_profiles')
+                .insert({ user_id: user.id, ...accountProfile });
+
+            if (saveError) {
+                currentUser = null;
+                setAuthMessage(`Could not create your saved-work profile: ${saveError.message}`, true);
+                return;
+            }
+        }
+
+        syncDashboard(accountProfile);
+        advanceReminder(user.email);
+        setAuthMessage('');
+        if (appShell) {
+            appShell.inert = false;
+            appShell.setAttribute('aria-hidden', 'false');
+        }
+        if (introScreen) {
+            introScreen.classList.add('hidden');
+        }
+    } catch (error) {
+        currentUser = null;
+        setAuthMessage(`Could not load your saved work: ${error.message}`, true);
+    }
+}
+
+if (authModeBtn) {
+    authModeBtn.addEventListener('click', () => setAuthMode(!isSignUpMode));
+}
+
+if (supabaseClient && loginForm) {
+    loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        enterDemo(loginUsername.value);
+        enterBtn.disabled = true;
+        setAuthMessage(isSignUpMode ? 'Creating your account…' : 'Signing you in…');
+
+        try {
+            const result = isSignUpMode
+                ? await supabaseClient.auth.signUp({
+                    email: loginEmail.value.trim(),
+                    password: loginPassword.value,
+                    options: { data: { display_name: loginDisplayName.value.trim() } }
+                })
+                : await supabaseClient.auth.signInWithPassword({
+                    email: loginEmail.value.trim(),
+                    password: loginPassword.value
+                });
+
+            if (result.error) {
+                setAuthMessage(result.error.message, true);
+                return;
+            }
+
+            if (isSignUpMode && !result.data.session) {
+                setAuthMessage('Account created. Check your email to confirm your address, then sign in.');
+            }
+        } catch (error) {
+            setAuthMessage(`Account request failed: ${error.message}`, true);
+        } finally {
+            enterBtn.disabled = false;
+        }
     });
 }
 
 if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        const username = localStorage.getItem(SESSION_KEY);
-        if (username) {
-            advanceReminder(username);
+    logoutBtn.addEventListener('click', async () => {
+        if (!supabaseClient) {
+            return;
         }
-        localStorage.removeItem(SESSION_KEY);
-
-        if (introScreen) {
-            introScreen.classList.remove('hidden');
-        }
-
-        if (loginUsername) {
-            loginUsername.focus();
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) {
+            setAuthMessage(`Could not sign out: ${error.message}`, true);
+            if (taskFeedback) {
+                taskFeedback.textContent = `Could not sign out: ${error.message}`;
+                taskFeedback.classList.add('is-error');
+            }
         }
     });
 }
@@ -374,60 +461,125 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+async function saveProfile(changes) {
+    if (!currentUser) {
+        return;
+    }
+
+    if (taskFeedback) {
+        taskFeedback.textContent = 'Saving to your account…';
+        taskFeedback.classList.remove('is-error');
+    }
+
+    let error;
+    try {
+        ({ error } = await supabaseClient
+            .from('student_profiles')
+            .update(changes)
+            .eq('user_id', currentUser.id));
+    } catch (requestError) {
+        if (taskFeedback) {
+            taskFeedback.textContent = `Could not save your changes: ${requestError.message}`;
+            taskFeedback.classList.add('is-error');
+        }
+        return;
+    }
+
+    if (taskFeedback) {
+        taskFeedback.textContent = error
+            ? `Could not save your changes: ${error.message}`
+            : 'Your changes are saved to your account.';
+        taskFeedback.classList.toggle('is-error', Boolean(error));
+    }
+}
+
 if (taskForm && taskInput) {
-    taskForm.addEventListener('submit', (event) => {
+    taskForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const username = localStorage.getItem(SESSION_KEY);
         const task = taskInput.value.trim();
 
-        if (!username || !task) {
+        if (!currentUser || !task) {
             if (taskFeedback) {
-                taskFeedback.textContent = 'Add a task first, then save your focus.';
+                taskFeedback.textContent = currentUser
+                    ? 'Add a task first, then save your focus.'
+                    : 'Sign in to save your focus.';
             }
             return;
         }
 
-        localStorage.setItem(getPreferenceKey(TASK_KEY, username), task);
-
-        if (taskFeedback) {
-            taskFeedback.textContent = 'Your focus is saved for this browser.';
-        }
+        await saveProfile({ focus_task: task });
     });
 }
 
 if (subjectSelect) {
-    subjectSelect.addEventListener('change', () => {
-        const username = localStorage.getItem(SESSION_KEY);
-        if (username) {
-            localStorage.setItem(getPreferenceKey(SUBJECT_KEY, username), subjectSelect.value);
+    subjectSelect.addEventListener('change', async () => {
+        if (currentUser) {
+            await saveProfile({ favorite_subject: subjectSelect.value });
         }
         syncPreferenceDisplays();
     });
 }
 
 if (paceSelect) {
-    paceSelect.addEventListener('change', () => {
-        const username = localStorage.getItem(SESSION_KEY);
-        if (username) {
-            localStorage.setItem(getPreferenceKey(PACE_KEY, username), paceSelect.value);
+    paceSelect.addEventListener('change', async () => {
+        if (currentUser) {
+            await saveProfile({ study_pace: paceSelect.value });
         }
         syncPreferenceDisplays();
     });
 }
 
-const savedUsername = localStorage.getItem(SESSION_KEY);
-if (savedUsername) {
-    if (loginUsername) {
-        loginUsername.value = savedUsername;
-    }
-    const savedReminderIndex = Number.parseInt(localStorage.getItem(getReminderKey(savedUsername)) || '0', 10);
-    showReminder(savedReminderIndex);
-    syncDashboard(savedUsername);
-
-    if (introScreen) {
-        introScreen.classList.add('hidden');
-    }
-} else if (timeGreeting) {
+if (timeGreeting) {
     timeGreeting.textContent = getTimeGreeting();
     showReminder(0);
+}
+
+setAuthMode(true);
+
+if (!supabaseClient) {
+    enterBtn.disabled = true;
+    setAuthMessage(
+        supabaseConfig && supabaseConfig.url && supabaseConfig.anonKey
+            ? 'Could not load the Supabase client. Check your internet connection and refresh.'
+            : 'Account sign-in is not configured yet. Add your Supabase project URL and public anon key in supabase-config.js.',
+        true
+    );
+}
+
+if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        queueMicrotask(() => {
+            if (session && session.user) {
+                if (!currentUser || currentUser.id !== session.user.id) {
+                    loadAccount(session.user);
+                }
+                return;
+            }
+
+            if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                if (appShell) {
+                    appShell.inert = true;
+                    appShell.setAttribute('aria-hidden', 'true');
+                }
+                if (introScreen) {
+                    introScreen.classList.remove('hidden');
+                }
+                if (loginEmail) {
+                    loginEmail.focus();
+                }
+            }
+        });
+    });
+
+    supabaseClient.auth.getSession().then(({ data, error }) => {
+        if (error) {
+            setAuthMessage(`Could not restore your sign-in: ${error.message}`, true);
+            return;
+        }
+
+        if (data.session && data.session.user && (!currentUser || currentUser.id !== data.session.user.id)) {
+            loadAccount(data.session.user);
+        }
+    });
 }
