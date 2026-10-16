@@ -3,50 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THSCDC</title>
+    <title>ProcrastiNOT | Student space</title>
+    <link rel="icon" href="assets/Procrastinot-transparent.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="intro-screen" id="introScreen">
-        <div class="intro-content">
-            <p class="intro-tag">A new beginning</p>
-            <h1 class="intro-logo">THSCDC</h1>
-            <p class="intro-subtitle">Focus. Discipline. Momentum.</p>
-            <label class="username-field" for="usernameInput">
-                <span>Username</span>
-                <input id="usernameInput" type="text" placeholder="Enter your username" maxlength="20">
-            </label>
-            <button id="enterBtn" class="enter-btn">Enter Home</button>
-        </div>
+        <section class="splash" aria-labelledby="welcomeTitle">
+            <span class="demo-pill"><span></span> INTERACTIVE PREVIEW</span>
+
+            <div class="splash-mark">
+                <img class="splash-logo" src="assets/Procrastinot-transparent.png" alt="ProcrastiNOT logo" tabindex="0">
+            </div>
+
+            <h1 id="welcomeTitle">A little more focus.<br><span>A lot more you.</span></h1>
+
+            <form id="loginForm" class="login-form">
+                <label class="login-field" for="loginUsername">
+                    <span>Your display name</span>
+                    <input id="loginUsername" type="text" autocomplete="given-name" maxlength="32" required>
+                </label>
+                <button id="enterBtn" class="primary-btn" type="submit">Explore the demo <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="demo-note">Demo only — no Genyo sign-in or password is needed.</p>
+        </section>
+
+        <p class="welcome-footnote">A calmer way to get started</p>
     </div>
 
-    <header class="site-header">
-        <nav class="navbar">
-            <div class="brand">THSCDC</div>
-        </nav>
-    </header>
+    <div class="app-shell">
+        <header class="site-header">
+            <nav class="navbar" aria-label="Main navigation">
+                <a class="brand" href="#home" aria-label="Student home">
+                    <img class="school-logo" src="assets/Procrastinot-transparent.png" alt="" aria-hidden="true">
+                </a>
+                <div class="nav-links">
+                    <a class="nav-link active" href="#home">My space</a>
+                    <a class="nav-link" href="#preferences">Preferences</a>
+                </div>
+                <div class="nav-user-wrap">
+                    <span class="avatar" id="userInitials" aria-hidden="true">S</span>
+                    <span class="nav-user" id="navUsernameDisplay">Student</span>
+                    <button id="logoutBtn" class="logout-btn" type="button">Exit demo</button>
+                </div>
+                <button id="menuBtn" class="menu-btn" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </nav>
+        </header>
 
-    <main class="hero home-page" id="home">
-        <div class="hero-copy">
-            <div class="brand-block">
-                <span class="brand-logo">Welcome
-                </span>
+        <aside id="sideMenu" class="side-menu" aria-hidden="true">
+            <div class="side-menu-header">
+                <div>
+                    <p class="side-menu-kicker">Navigate</p>
+                    <h2>Menu</h2>
+                </div>
+                <button id="closeMenuBtn" class="close-menu-btn" type="button" aria-label="Close navigation menu">×</button>
             </div>
-            <p id="timeGreeting" class="eyebrow">Good morning</p>
-            <p class="welcome-text">Welcome, <span id="usernameDisplay">Student</span>!</p>
-        </div>
-    </main>
+            <nav class="side-menu-nav" aria-label="Side navigation">
+                <a class="side-menu-link active" href="#home">My space</a>
+                <a class="side-menu-link" href="#preferences">Preferences</a>
+                <a class="side-menu-link" href="#about">About</a>
+            </nav>
+            <button id="creditBtn" class="credit-btn" type="button" aria-label="View credits">Credits</button>
+        </aside>
 
-    <section class="info-section" id="features">
-        <div class="info-card">
-            <h3>Built for Focus</h3>
-            <p>Simple routines, fewer distractions, and better productivity habits.</p>
-        </div>
-        <div class="info-card" id="about">
-            <h3>Purpose</h3>
-            <p>Helping students turn intention into action before procrastination takes over.</p>
-        </div>
-    </section>
+        <aside id="creditsPanel" class="credits-panel" aria-hidden="true" aria-label="Credits panel">
+            <div class="side-menu-header">
+                <div class="credits-heading">
+                    <p class="side-menu-kicker">About</p>
+                    <div class="credits-title-row">
+                        <h2>Credits</h2>
+                        <span class="credits-team-title">Meet the team</span>
+                    </div>
+                </div>
+                <button id="closeCreditsBtn" class="close-menu-btn" type="button" aria-label="Close credits panel">×</button>
+            </div>
+            <div class="credits-content">
+                <div class="credits-members" role="group" aria-label="Project members">
+                    <button class="credit-member-btn" type="button" data-person="1" aria-pressed="false">Person 1</button>
+                    <button class="credit-member-btn" type="button" data-person="2" aria-pressed="false">Person 2</button>
+                    <button class="credit-member-btn" type="button" data-person="3" aria-pressed="false">Person 3</button>
+                    <button class="credit-member-btn" type="button" data-person="4" aria-pressed="false">Person 4</button>
+                    <button class="credit-member-btn" type="button" data-person="5" aria-pressed="false">Person 5</button>
+                    <button class="credit-member-btn" type="button" data-person="6" aria-pressed="false">Person 6</button>
+                    <button class="credit-member-btn" type="button" data-person="7" aria-pressed="false">Person 7</button>
+                    <button class="credit-member-btn" type="button" data-person="8" aria-pressed="false">Person 8</button>
+                    <button class="credit-member-btn" type="button" data-person="9" aria-pressed="false">Person 9</button>
+                    <button class="credit-member-btn" type="button" data-person="10" aria-pressed="false">Person 10</button>
+                </div>
+                <section class="credit-detail" id="creditDetail" aria-live="polite" aria-atomic="true">
+                    <div class="credit-photo-placeholder" id="creditPhotoPlaceholder" role="img" aria-label="Photo placeholder for team members">
+                        <span>Team photo goes here</span>
+                    </div>
+                    <div class="credit-detail-info">
+                        <span class="section-kicker">CONTRIBUTION</span>
+                        <h3 id="creditDetailTitle">Select a team member</h3>
+                        <p id="creditDetailText">Choose a person above to view their contribution and project details.</p>
+                    </div>
+                </section>
+            </div>
+            <button id="backToMenuBtn" class="back-menu-btn" type="button">Back to menu</button>
+        </aside>
+
+        <main class="dashboard" id="home">
+            <section class="dashboard-heading">
+                <div>
+                    <p id="timeGreeting" class="eyebrow">Good morning</p>
+                    <h1>Good to see you, <span id="usernameDisplay">Student</span>.</h1>
+                    <p class="heading-subtitle">Your space, your pace. What would you like to focus on?</p>
+                </div>
+                <div class="date-card">
+                    <span class="date-icon" aria-hidden="true">✳</span>
+                    <span id="todayDate">A fresh start</span>
+                </div>
+            </section>
+
+            <section class="dashboard-grid" aria-label="Your student dashboard">
+                <div class="main-column">
+                    <article class="focus-card">
+                        <div class="card-heading">
+                            <div>
+                                <span class="section-kicker">YOUR NEXT STEP</span>
+                                <h2>Make it a focus day.</h2>
+                            </div>
+                            <span class="focus-icon" aria-hidden="true">✦</span>
+                        </div>
+                        <p class="card-copy">Big assignment or tiny to-do? Start with one thing.</p>
+                        <form id="taskForm" class="task-form">
+                            <label class="visually-hidden" for="taskInput">What are you working on?</label>
+                            <input id="taskInput" type="text" placeholder="e.g. Review my science notes" maxlength="60">
+                            <button id="startTaskBtn" class="primary-btn" type="submit">Save focus <span aria-hidden="true">→</span></button>
+                        </form>
+                        <p id="taskFeedback" class="task-feedback" aria-live="polite"></p>
+                    </article>
+
+                    <section class="preferences-card" id="preferences">
+                        <div class="section-title-row">
+                            <div>
+                                <span class="section-kicker">MAKE IT YOURS</span>
+                                <h2>Your study preferences</h2>
+                            </div>
+                            <span class="preferences-icon" aria-hidden="true">☼</span>
+                        </div>
+                        <p class="card-copy">A few little choices to make this space feel like yours.</p>
+
+                        <div class="preference-row">
+                            <div class="preference-icon subject-icon" aria-hidden="true">✎</div>
+                            <div class="preference-copy">
+                                <strong>Favorite subject</strong>
+                                <span>Pick what you're into lately</span>
+                            </div>
+                            <label class="visually-hidden" for="subjectSelect">Favorite subject</label>
+                            <select id="subjectSelect">
+                                <option value="Science">Science</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="English">English</option>
+                                <option value="Araling Panlipunan">Araling Panlipunan</option>
+                            </select>
+                        </div>
+                        <div class="preference-row">
+                            <div class="preference-icon pace-icon" aria-hidden="true">◷</div>
+                            <div class="preference-copy">
+                                <strong>Study pace</strong>
+                                <span>There's no rush — choose your rhythm</span>
+                            </div>
+                            <label class="visually-hidden" for="paceSelect">Study pace</label>
+                            <select id="paceSelect">
+                                <option value="My own pace">My own pace</option>
+                                <option value="Quick sessions">Quick sessions</option>
+                                <option value="Deep focus">Deep focus</option>
+                            </select>
+                        </div>
+                        <p class="storage-note"><span aria-hidden="true">ⓘ</span> Preview preferences are saved in this browser only.</p>
+                    </section>
+                </div>
+
+                <aside class="side-column">
+                    <article class="today-card">
+                        <div class="today-card-top">
+                            <span class="section-kicker">A LITTLE REMINDER</span>
+                            <span class="sun-icon" aria-hidden="true">☀</span>
+                        </div>
+                        <blockquote class="reminder-quote" id="reminderQuote"></blockquote>
+                        <footer class="reminder-credit">
+                            <strong id="reminderAuthor"></strong>
+                            <span id="reminderAbout"></span>
+                        </footer>
+                        <div class="reminder-decoration" aria-hidden="true">✳</div>
+                    </article>
+
+                    <article class="quick-card">
+                        <div class="quick-card-heading">
+                            <span class="quick-icon" aria-hidden="true">⌁</span>
+                            <div>
+                                <span class="section-kicker">YOUR VIBE</span>
+                                <h2>Made for you</h2>
+                            </div>
+                        </div>
+                        <p>Your dashboard is ready for <strong id="favoriteSubjectDisplay">Science</strong> and <strong id="studyPaceDisplay">My own pace</strong>.</p>
+                        <a href="#preferences" class="text-link">Tune your space <span aria-hidden="true">→</span></a>
+                    </article>
+                </aside>
+            </section>
+            <footer class="dashboard-footer">Student space <span>·</span> Prototype preview</footer>
+        </main>
+    </div>
 
     <script src="script.js"></script>
 </body>
