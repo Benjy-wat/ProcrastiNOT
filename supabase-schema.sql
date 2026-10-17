@@ -2,8 +2,7 @@ create table if not exists public.student_profiles (
     user_id uuid primary key references auth.users (id) on delete cascade,
     display_name text not null,
     focus_task text not null default '',
-    favorite_subject text not null default 'Science'
-        check (favorite_subject in ('Science', 'Mathematics', 'English', 'Araling Panlipunan')),
+favorite_subject text not null default 'Science',
     study_pace text not null default 'My own pace'
         check (study_pace in ('My own pace', 'Quick sessions', 'Deep focus')),
     updated_at timestamptz not null default now()

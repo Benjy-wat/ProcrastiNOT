@@ -1,0 +1,9 @@
+{
+  "name": "procrastinot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local development server for the ProcrastiNOT student space",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
